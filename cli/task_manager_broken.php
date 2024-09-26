@@ -3,11 +3,14 @@
 class Task {
     private $id;
     private $title;
+    private $description;
+    private $category;
 
-    public function __construct($id, $title) {
+    public function __construct($id, $title, $description, $category) {
         $this->id = $id;
         $this->title = $title;
         $this->description = $description;
+        $this->category = $category;
     }
 
     public function setTitle($title) {
@@ -18,10 +21,18 @@ class Task {
         $this->description = $description;
     }
 
+    public function setCategory($category) {
+        $this->category = $category;
+    }
+    public function getCategory(): string {
+        return $this->category;
+    }
+
     public function displayTask() {
         echo "ID: " . $this->id . "\n";
         echo "Title: " . $this->title . "\n";
         echo "Description: " . $this->description . "\n";
+        echo "Category: " . $this->category . "\n";
         echo "--------------------------\n";
     }
 }
@@ -32,7 +43,23 @@ function displayAllTasks($tasks) {
     if (empty($tasks)) {
         echo "No tasks available.\n";
     } else {
+        echo "--------------------------\n";
         foreach ($tasks as $task) {
+            $task->displayTask();
+        }
+    }
+}
+function displayTasksByCategory($tasks): void {
+    if(empty($tasks)) {
+        echo "No tasks available.\n";
+    }
+    else {
+        $category = readline("Enter category: ");
+        echo "--------------------------\n";
+        foreach($tasks as $task) {
+            if($task->getCategory() == $category) {
+                $task->displayTask();
+            }
         }
     }
 }
@@ -40,12 +67,13 @@ function displayAllTasks($tasks) {
 function createTask(&$tasks) {
     $title = readline("Enter Task Title: ");
     $description = readline("Enter Task Description: ");
+    $category = readline("Enter category: ");
 
     end($tasks);
     $lastKey = key($tasks);
     $id = $lastKey + 1;
 
-    $tasks[$id] = new Task();
+    $tasks[$id] = new Task($id, $title, $description, $category);
     echo "Task Created.\n";
 }
 
@@ -54,9 +82,12 @@ function updateTask(&$tasks) {
 
     if (isset($tasks[$id])) {
         $newTitle = readline("Enter New Title: ");
+        $newDescription = readline("Enter new Description: ");
+        $newCategory = readline("Enter new category: ");
 
         $tasks[$id]->setTitle($newTitle);
         $tasks[$id]->setDescription($newDescription);
+        $tasks[$id]->setCategory($newCategory);
 
         echo "Task Updated.\n";
     } else {
@@ -82,6 +113,7 @@ while (true) {
     echo "3. Update Task\n";
     echo "4. Delete Task\n";
     echo "5. Exit\n";
+    echo "6. View tasks by category\n";
     echo "Choose an option: ";
     $choice = trim(fgets(STDIN));
 
@@ -96,11 +128,14 @@ while (true) {
             updateTask($tasks);
             break;
         case 4:
-            deleteTasks();
+            deleteTask($tasks);
             break;
         case 5:
             echo "Exiting the application. Goodbye!\n";
             exit;
+        case 6:
+            displayTasksByCategory($tasks);
+            break;
         case 13:
             print_r($tasks);
         default:
